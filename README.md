@@ -14,7 +14,18 @@ On each Deadline HouseCleaning cycle (~60 seconds), the plugin:
 
 ### Why Exclusions?
 
-If an artist has Nuke open on their workstation (which is also a Deadline worker), that machine already has a license checked out. By excluding it from the limit group, the worker can still pick up Nuke jobs without consuming a limit slot -- the license is already in use on that machine anyway.
+If an artist has an application open on their workstation (which is also a Deadline worker), that machine already has a license checked out. By excluding it from the limit group, the worker can still pick up jobs without consuming a limit slot -- the license is already in use on that machine anyway.
+
+### Supported Products
+
+While the examples below use Nuke (`nuke_i`), this plugin works with **any RLM-managed license product**. Simply change the `LicenseProduct` and `LimitGroupName` settings. Examples:
+
+- **Nuke interactive:** `LicenseProduct=nuke_i`, `LimitGroupName=nuke`
+- **Nuke render:** `LicenseProduct=nuke_r`, `LimitGroupName=nuke_render`
+- **NukeX interactive:** `LicenseProduct=nukex_i`, `LimitGroupName=nukex`
+- **Mari:** `LicenseProduct=mari_i`, `LimitGroupName=mari`
+
+You can deploy multiple instances of the plugin (with different directories/names) to track several products simultaneously, each managing its own limit group.
 
 ## Installation
 
@@ -26,27 +37,29 @@ If an artist has Nuke open on their workstation (which is also a Deadline worker
 2. Ensure `rlmutil` is available on the machine(s) that will run the plugin (see [Deployment Considerations](#deployment-considerations) below).
 
 3. Create the limit group in Deadline Monitor:
-   **Tools > Manage Limit Groups > Add** (default name: `nuke`)
+   **Tools > Manage Limit Groups > Add**
 
 4. Enable the plugin:
    **Tools > Configure Event Plugins > RLMLicenseSync > State: Global Enabled**
 
 5. Configure your settings (RLM server IP, port, rlmutil path, etc.)
 
-6. Add the limit group to your Nuke job submissions (`LimitGroups=nuke`)
+6. Add the limit group to your job submissions (e.g. `LimitGroups=nuke`)
 
 ## Configuration
 
 | Parameter | Default | Description |
 |---|---|---|
 | State | Global Disabled | Enable/disable the plugin |
-| RepositoryHost | RedividerServer | Hostname of the Repository machine. Plugin only runs here. |
-| RLMServer | 192.168.2.40 | RLM license server hostname/IP |
+| RepositoryHost | *(your hostname)* | Hostname of the Repository machine. Plugin only runs here. |
+| RLMServer | *(your RLM server IP)* | RLM license server hostname/IP |
 | RLMPort | 4101 | RLM server port |
 | RLMUtilPath | rlmutil | Path to `rlmutil` binary |
-| LicenseProduct | nuke_i | RLM product name to track (e.g. `nuke_i`, `nuke_r`, `nukex_i`) |
+| LicenseProduct | nuke_i | RLM product name to track |
 | LimitGroupName | nuke | Deadline limit group to manage |
 | Timeout | 10 | Seconds to wait for `rlmutil` response |
+
+> **Note:** After installation, update `RepositoryHost` and `RLMServer` in the plugin configuration to match your environment.
 
 ## Deployment Considerations
 
@@ -60,7 +73,7 @@ The simplest setup is to run the plugin exclusively on the machine hosting Deadl
 
 1. Set `RepositoryHost` in the plugin config to your Repository server's hostname. The plugin will silently skip execution on all other machines.
 2. In Deadline Monitor, go to **Tools > Configure Repository Options > House Cleaning** and disable **"Allow Workers to Perform House Cleaning If Pulse is Not Running"**. This ensures only Pulse performs house cleaning.
-3. Add `rlmutil` to the system `PATH` on the Repository server (e.g. via symlink to `/usr/local/bin/`), or set `RLMUtilPath` to the full path (e.g. `/usr/local/foundry/LicensingTools8.0/bin/RLM/rlmutil`).
+3. Add `rlmutil` to the system `PATH` on the Repository server (e.g. via symlink to `/usr/local/bin/`), or set `RLMUtilPath` to the full path.
 
 ### Alternative: Allow any client to run it
 
@@ -84,7 +97,7 @@ nuke_i v2027.0212
 
 **License usage** (who has what):
 ```
-nuke_i v2027.0212: dieuwer@workstation-07 1/0 at 03/29 13:02  (handle: 41)
+nuke_i v2027.0212: artist@workstation-07 1/0 at 03/29 13:02  (handle: 41)
 ```
 
 Multiple version blocks for the same product are summed automatically.

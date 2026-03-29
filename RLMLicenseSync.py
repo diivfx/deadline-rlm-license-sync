@@ -24,16 +24,17 @@ class RLMLicenseSync(DeadlineEventListener):
         del self.OnHouseCleaningCallback
 
     def OnHouseCleaning(self):
-        # Only run on the Repository server
-        allowed_host = self.GetConfigEntryWithDefault("RepositoryHost", "RedividerServer")
-        current_host = socket.gethostname()
-        if current_host.lower() != allowed_host.lower():
-            return
+        # Only run on the Repository server (skip if RepositoryHost is configured)
+        allowed_host = self.GetConfigEntryWithDefault("RepositoryHost", "")
+        if allowed_host:
+            current_host = socket.gethostname()
+            if current_host.lower() != allowed_host.lower():
+                return
 
         self.LogInfo("RLMLicenseSync: Starting license sync cycle.")
 
         # Read config
-        rlm_server = self.GetConfigEntryWithDefault("RLMServer", "192.168.2.40")
+        rlm_server = self.GetConfigEntryWithDefault("RLMServer", "localhost")
         rlm_port = self.GetConfigEntryWithDefault("RLMPort", "4101")
         rlmutil_path = self.GetConfigEntryWithDefault("RLMUtilPath", "rlmutil")
         license_product = self.GetConfigEntryWithDefault("LicenseProduct", "nuke_i")

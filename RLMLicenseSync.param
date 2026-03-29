@@ -23,8 +23,8 @@ Label=Repository Hostname
 Category=Options
 CategoryOrder=0
 Index=1
-Default=RedividerServer
-Description=Hostname of the machine running the Deadline Repository. The plugin will only execute on this machine and silently skip on all others.
+Default=
+Description=Hostname of the machine running the Deadline Repository. The plugin will only execute on this machine and silently skip on all others. Leave empty to run on any machine.
 
 [RLMServer]
 Type=string
@@ -32,7 +32,7 @@ Label=RLM Server
 Category=RLM Settings
 CategoryOrder=1
 Index=0
-Default=192.168.2.40
+Default=localhost
 Description=Hostname or IP address of the RLM license server.
 
 [RLMPort]
