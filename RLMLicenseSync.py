@@ -115,7 +115,7 @@ class RLMLicenseSync(DeadlineEventListener):
                     obsolete: 0, min_remove: 120, total checkouts: 809
 
         Example usage format:
-            nuke_i v2027.0212: dieuwer@dieuwer-5950x 1/0 at 03/29 13:02  (handle: 41)
+            nuke_i v2027.0212: artist@workstation-07 1/0 at 03/29 13:02  (handle: 41)
         """
         lines = output.replace("\r\n", "\n").split("\n")
 
@@ -186,7 +186,8 @@ class RLMLicenseSync(DeadlineEventListener):
         # Update the limit group
         try:
             RepositoryUtils.SetLimitGroupMaximum(limit_group_name, free)
-            RepositoryUtils.SetLimitGroupListedSlaves(limit_group_name, excluded_workers)
+            limit_group.SetLimitGroupExcludedSlaves(excluded_workers)
+            RepositoryUtils.SaveLimitGroup(limit_group)
             self.LogInfo("RLMLicenseSync: Updated '{0}': limit={1}, excluded={2}".format(
                 limit_group_name, free, excluded_workers))
         except Exception as e:

@@ -10,11 +10,13 @@ On each Deadline HouseCleaning cycle (~60 seconds), the plugin:
 2. Parses total license count, in-use count, and which machines have licenses checked out
 3. Updates a Deadline limit group:
    - **Limit = free licenses** (total - in use)
-   - **Exclusion list = workers that already hold a license** (they bypass the limit)
+   - **Workers Excluded From Limit = workers that already hold a license** (they bypass the limit entirely and can always pick up jobs)
 
 ### Why Exclusions?
 
-If an artist has an application open on their workstation (which is also a Deadline worker), that machine already has a license checked out. By excluding it from the limit group, the worker can still pick up jobs without consuming a limit slot -- the license is already in use on that machine anyway.
+If an artist has an application open on their workstation (which is also a Deadline worker), that machine already has a license checked out. By adding it to the limit group's "Workers Excluded From Limit" list, the worker bypasses the limit entirely and can always pick up jobs -- the license is already in use on that machine anyway.
+
+**Important:** This uses Deadline's "Excluded From Limit" list, which is different from the allow/deny list. The allow/deny list controls which workers *can* use the limit group. The excluded list lets workers bypass the limit count entirely.
 
 ### Supported Products
 
