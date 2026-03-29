@@ -1,0 +1,81 @@
+[About]
+Type=label
+Label=About
+Category=About Plugin
+CategoryOrder=-1
+Index=0
+Default=Syncs RLM floating license availability into a Deadline limit group. Queries rlmutil rlmstat on each HouseCleaning cycle and updates the limit group maximum and worker exclusion list.
+Description=Not configurable.
+
+[State]
+Type=Enum
+Values=Global Enabled;Global Disabled
+Label=State
+Category=Options
+CategoryOrder=0
+Index=0
+Default=Global Disabled
+Description=How this event plugin should respond to events. If Global, all jobs and Workers will trigger the events for this plugin. If disabled, no events are triggered for this plugin.
+
+[RepositoryHost]
+Type=string
+Label=Repository Hostname
+Category=Options
+CategoryOrder=0
+Index=1
+Default=RedividerServer
+Description=Hostname of the machine running the Deadline Repository. The plugin will only execute on this machine and silently skip on all others.
+
+[RLMServer]
+Type=string
+Label=RLM Server
+Category=RLM Settings
+CategoryOrder=1
+Index=0
+Default=192.168.2.40
+Description=Hostname or IP address of the RLM license server.
+
+[RLMPort]
+Type=Integer
+Label=RLM Port
+Category=RLM Settings
+CategoryOrder=1
+Index=1
+Default=4101
+Description=Port number of the RLM license server.
+
+[RLMUtilPath]
+Type=string
+Label=rlmutil Path
+Category=RLM Settings
+CategoryOrder=1
+Index=2
+Default=rlmutil
+Description=Full path to the rlmutil executable. Use just 'rlmutil' if it is on the system PATH.
+
+[LicenseProduct]
+Type=string
+Label=License Product
+Category=RLM Settings
+CategoryOrder=1
+Index=3
+Default=nuke_i
+Description=The RLM product/license name to look for in the output (e.g. nuke_i, nuke_r, nukex_i).
+
+[LimitGroupName]
+Type=string
+Label=Limit Group Name
+Category=Deadline Settings
+CategoryOrder=2
+Index=0
+Default=nuke
+Description=Name of the Deadline limit group to manage.
+
+[Timeout]
+Type=Integer
+Label=Timeout (seconds)
+Category=RLM Settings
+CategoryOrder=1
+Index=4
+Default=10
+Description=Seconds to wait for rlmutil to respond before giving up.
