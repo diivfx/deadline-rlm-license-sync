@@ -23,7 +23,7 @@ If an artist has Nuke open on their workstation (which is also a Deadline worker
    <DeadlineRepository>/custom/events/RLMLicenseSync/
    ```
 
-2. Ensure `rlmutil` is available on the machine running the Deadline Repository/Pulse service (either on `PATH` or specify the full path in the plugin config).
+2. Ensure `rlmutil` is available on the machine(s) that will run the plugin (see [Deployment Considerations](#deployment-considerations) below).
 
 3. Create the limit group in Deadline Monitor:
    **Tools > Manage Limit Groups > Add** (default name: `nuke`)
@@ -47,6 +47,29 @@ If an artist has Nuke open on their workstation (which is also a Deadline worker
 | LicenseProduct | nuke_i | RLM product name to track (e.g. `nuke_i`, `nuke_r`, `nukex_i`) |
 | LimitGroupName | nuke | Deadline limit group to manage |
 | Timeout | 10 | Seconds to wait for `rlmutil` response |
+
+## Deployment Considerations
+
+### Where the plugin runs
+
+Deadline event plugins triggered by `OnHouseCleaning` run on whichever application performs house cleaning -- this can be Pulse, a Worker, or even Deadline Monitor. By default, any of these may trigger the plugin.
+
+**Recommended: Run only on the Repository server via Pulse**
+
+The simplest setup is to run the plugin exclusively on the machine hosting Deadline Pulse (typically your Repository server). To do this:
+
+1. Set `RepositoryHost` in the plugin config to your Repository server's hostname. The plugin will silently skip execution on all other machines.
+2. In Deadline Monitor, go to **Tools > Configure Repository Options > House Cleaning** and disable **"Allow Workers to Perform House Cleaning If Pulse is Not Running"**. This ensures only Pulse performs house cleaning.
+3. Add `rlmutil` to the system `PATH` on the Repository server (e.g. via symlink to `/usr/local/bin/`), or set `RLMUtilPath` to the full path (e.g. `/usr/local/foundry/LicensingTools8.0/bin/RLM/rlmutil`).
+
+### Alternative: Allow any client to run it
+
+If you prefer the plugin to run from any Deadline client (Worker, Monitor, etc.), remove the `RepositoryHost` guard or set it to match multiple machines. In this case, `rlmutil` must be accessible from every machine that might trigger house cleaning. Options:
+
+- **Shared network path** -- place `rlmutil` on a network share and set `RLMUtilPath` to the UNC/mount path (e.g. `\\server\share\rlmutil.exe` or `/mnt/share/rlmutil`)
+- **Install locally** -- install `rlmutil` on every Worker/client machine and add it to `PATH`
+
+Note that in this mode, multiple machines may run the plugin concurrently during the same house cleaning cycle. This is harmless (they'll all compute the same result), but generates redundant log entries.
 
 ## RLM Output Format
 
