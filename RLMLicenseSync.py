@@ -137,6 +137,14 @@ class RLMLicenseSync(DeadlineEventListener):
         in_use = 0
         checkout_hosts = []
         found_any = False
+        in_product_section = False
+
+        # Pattern for pool header: "nuke_i v2027.0212" (product name at start)
+        product_header = re.compile(
+            r"^\s*" + re.escape(product) + r"\s+v\S+"
+        )
+        # Pattern for any other product header (to exit the section)
+        any_product_header = re.compile(r"^\s*\S+\s+v\d+\.\d+")
 
         # Pattern for usage lines: "nuke_i v2027.0212: user@hostname 1/0 at ..."
         usage_pattern = re.compile(
@@ -146,14 +154,21 @@ class RLMLicenseSync(DeadlineEventListener):
         for line in lines:
             stripped = line.strip()
 
-            # Parse pool section: count/inuse lines follow product headers
-            count_match = re.search(r"count:\s*(\d+)", stripped)
-            inuse_match = re.search(r"inuse:\s*(\d+)", stripped)
-            if count_match and inuse_match:
-                total += int(count_match.group(1))
-                in_use += int(inuse_match.group(1))
-                found_any = True
-                continue
+            # Track which product section we're in
+            if product_header.match(line):
+                in_product_section = True
+            elif any_product_header.match(line) and not product_header.match(line):
+                in_product_section = False
+
+            # Parse pool section: count/inuse lines only within our product
+            if in_product_section:
+                count_match = re.search(r"count:\s*(\d+)", stripped)
+                inuse_match = re.search(r"inuse:\s*(\d+)", stripped)
+                if count_match and inuse_match:
+                    total += int(count_match.group(1))
+                    in_use += int(inuse_match.group(1))
+                    found_any = True
+                    continue
 
             # Parse usage section: "nuke_i v2027.0212: user@hostname ..."
             usage_match = usage_pattern.match(line)
