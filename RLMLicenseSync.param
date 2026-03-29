@@ -60,7 +60,7 @@ Category=RLM Settings
 CategoryOrder=1
 Index=3
 Default=nuke_i
-Description=The RLM product/license name to look for in the output (e.g. nuke_i, nuke_r, nukex_i).
+Description=Comma-separated list of RLM product names to track (e.g. nuke_i or nuke_i,nuke_r). Counts are summed across all listed products into a single limit group.
 
 [LimitGroupName]
 Type=string

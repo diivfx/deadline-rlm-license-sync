@@ -20,14 +20,22 @@ If an artist has an application open on their workstation (which is also a Deadl
 
 ### Supported Products
 
-While the examples below use Nuke (`nuke_i`), this plugin works with **any RLM-managed license product**. Simply change the `LicenseProduct` and `LimitGroupName` settings. Examples:
+While the examples below use Nuke, this plugin works with **any RLM-managed license product**. The `LicenseProduct` field supports comma-separated values -- all products are summed into a single limit group.
 
-- **Nuke interactive:** `LicenseProduct=nuke_i`, `LimitGroupName=nuke`
-- **Nuke render:** `LicenseProduct=nuke_r`, `LimitGroupName=nuke_render`
-- **NukeX interactive:** `LicenseProduct=nukex_i`, `LimitGroupName=nukex`
-- **Mari:** `LicenseProduct=mari_i`, `LimitGroupName=mari`
+**Single product:**
+- `LicenseProduct=nuke_i` -- track interactive licenses only
 
-You can deploy multiple instances of the plugin (with different directories/names) to track several products simultaneously, each managing its own limit group.
+**Multiple products in one limit group:**
+- `LicenseProduct=nuke_i,nuke_r` -- track both interactive and render licenses together
+
+**Separate limit groups for different applications:**
+
+Deploy multiple instances of the plugin (copy the directory with a different name) to manage independent limit groups. For example:
+
+| Plugin Directory | LicenseProduct | LimitGroupName |
+|---|---|---|
+| `RLMLicenseSync/` | `nuke_i,nuke_r` | `nuke` |
+| `RLMLicenseSync_Mari/` | `mari_i` | `mari` |
 
 ## Installation
 
@@ -57,7 +65,7 @@ You can deploy multiple instances of the plugin (with different directories/name
 | RLMServer | *(your RLM server IP)* | RLM license server hostname/IP |
 | RLMPort | 4101 | RLM server port |
 | RLMUtilPath | rlmutil | Path to `rlmutil` binary |
-| LicenseProduct | nuke_i | RLM product name to track |
+| LicenseProduct | nuke_i | Comma-separated RLM product names (e.g. `nuke_i,nuke_r`) |
 | LimitGroupName | nuke | Deadline limit group to manage |
 | Timeout | 10 | Seconds to wait for `rlmutil` response |
 

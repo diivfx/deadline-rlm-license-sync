@@ -46,12 +46,26 @@ class RLMLicenseSync(DeadlineEventListener):
         if rlmstat_output is None:
             return
 
-        # Parse output
-        license_info = self._parse_rlmstat(rlmstat_output, license_product)
-        if license_info is None:
-            return
+        # Parse output for each product, accumulating totals
+        products = [p.strip() for p in license_product.split(",") if p.strip()]
+        total = 0
+        in_use = 0
+        checkout_hosts = []
 
-        total, in_use, checkout_hosts = license_info
+        for product in products:
+            license_info = self._parse_rlmstat(rlmstat_output, product)
+            if license_info is None:
+                continue
+            p_total, p_in_use, p_hosts = license_info
+            total += p_total
+            in_use += p_in_use
+            for host in p_hosts:
+                if host not in checkout_hosts:
+                    checkout_hosts.append(host)
+
+        if total == 0 and not checkout_hosts:
+            self.LogWarning("RLMLicenseSync: No license data found for any product in: {0}".format(products))
+            return
 
         # Update limit group
         self._update_limit_group(limit_group_name, total, in_use, checkout_hosts)
