@@ -185,9 +185,9 @@ class RLMLicenseSync(DeadlineEventListener):
 
         # Update the limit group
         try:
-            RepositoryUtils.SetLimitGroupMaximum(limit_group_name, free)
             limit_group.SetLimitGroupExcludedSlaves(excluded_workers)
             RepositoryUtils.SaveLimitGroup(limit_group)
+            RepositoryUtils.SetLimitGroupMaximum(limit_group_name, free)
             self.LogInfo("RLMLicenseSync: Updated '{0}': limit={1}, excluded={2}".format(
                 limit_group_name, free, excluded_workers))
         except Exception as e:
