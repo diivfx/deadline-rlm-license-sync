@@ -31,8 +31,6 @@ class RLMLicenseSync(DeadlineEventListener):
             if current_host.lower() != allowed_host.lower():
                 return
 
-        self.LogInfo("RLMLicenseSync: Starting license sync cycle.")
-
         # Read config
         rlm_server = self.GetConfigEntryWithDefault("RLMServer", "localhost")
         rlm_port = self.GetConfigEntryWithDefault("RLMPort", "4101")
@@ -53,10 +51,7 @@ class RLMLicenseSync(DeadlineEventListener):
         checkout_hosts = []
 
         for product in products:
-            license_info = self._parse_rlmstat(rlmstat_output, product)
-            if license_info is None:
-                continue
-            p_total, p_in_use, p_hosts = license_info
+            p_total, p_in_use, p_hosts = self._parse_rlmstat(rlmstat_output, product)
             total += p_total
             in_use += p_in_use
             for host in p_hosts:
@@ -70,12 +65,9 @@ class RLMLicenseSync(DeadlineEventListener):
         # Update limit group
         self._update_limit_group(limit_group_name, total, in_use, checkout_hosts)
 
-        self.LogInfo("RLMLicenseSync: Cycle complete.")
-
     def _query_rlm(self, rlmutil_path, server, port, timeout):
         """Shell out to rlmutil rlmstat and return stdout, or None on failure."""
         args = "rlmstat -c {0}@{1} -a".format(port, server)
-        self.LogInfo("RLMLicenseSync: Running: {0} {1}".format(rlmutil_path, args))
 
         try:
             start_info = ProcessStartInfo()
@@ -117,7 +109,7 @@ class RLMLicenseSync(DeadlineEventListener):
             return None
 
     def _parse_rlmstat(self, output, product):
-        """Parse rlmstat output. Returns (total, in_use, [hostnames]) or None on failure.
+        """Parse rlmstat output. Returns (total, in_use, [hostnames]).
 
         Parses two sections of rlmstat -a output:
         1. "license pool status" — for total count and inuse count per version
@@ -179,12 +171,10 @@ class RLMLicenseSync(DeadlineEventListener):
                 found_any = True
 
         if not found_any:
-            self.LogWarning("RLMLicenseSync: Failed to parse rlmstat output. Could not find '{0}'.".format(product))
-            self.LogInfo("RLMLicenseSync: Raw output:\n{0}".format(output))
-            return None
+            return (0, 0, [])
 
-        self.LogInfo("RLMLicenseSync: Parsed: total={0}, in_use={1}, checkouts={2}".format(
-            total, in_use, checkout_hosts))
+        self.LogInfo("RLMLicenseSync: Parsed {0}: total={1}, in_use={2}, checkouts={3}".format(
+            product, total, in_use, checkout_hosts))
 
         return (total, in_use, checkout_hosts)
 
